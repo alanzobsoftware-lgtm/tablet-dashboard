@@ -1,0 +1,44 @@
+plugins {
+    id 'com.android.application'
+}
+
+// The signing key is not stored in this repo. The GitHub build writes it to signing/app.keystore from the
+// repository secret KEYSTORE_B64 (see .github/workflows/android.yml), so every build is signed the same way
+// and installs as an update over the previous one.
+def keystoreFile = rootProject.file('signing/app.keystore')
+def runNumber = (System.getenv('GITHUB_RUN_NUMBER') ?: '1').toInteger()
+def buildCode = 1000 + runNumber   // always above every earlier build number, so updates install over them
+
+android {
+    namespace 'com.alanzob.tabletdashboard'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'com.alanzob.tabletdashboard'
+        minSdk 24
+        targetSdk 34
+        versionCode buildCode
+        versionName "2." + runNumber
+    }
+
+    signingConfigs {
+        release {
+            storeFile keystoreFile
+            storePassword 'tabletdash'
+            keyAlias 'dashboard'
+            keyPassword 'tabletdash'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.release
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}

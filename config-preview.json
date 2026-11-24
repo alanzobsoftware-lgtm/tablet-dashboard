@@ -1,0 +1,59 @@
+{
+  "title": "Home",
+
+  "calTitle": "Up next",
+  "countdowns": [
+    { "label": "New Year's Day", "date": "2027-01-01", "yearly": true, "showWithinDays": 14 },
+    { "label": "Valentine's Day", "date": "2027-02-14", "yearly": true, "showWithinDays": 14 },
+    { "label": "St. Patrick's Day", "date": "2027-03-17", "yearly": true, "showWithinDays": 14 },
+    { "label": "Easter", "rule": "easter", "showWithinDays": 21 },
+    { "label": "Mother's Day", "rule": "2 sun 5", "showWithinDays": 21 },
+    { "label": "Memorial Day", "rule": "-1 mon 5", "showWithinDays": 14 },
+    { "label": "Father's Day", "rule": "3 sun 6", "showWithinDays": 21 },
+    { "label": "Fourth of July", "date": "2027-07-04", "yearly": true, "showWithinDays": 21 },
+    { "label": "Labor Day", "rule": "1 mon 9", "showWithinDays": 14 },
+    { "label": "Halloween", "date": "2027-10-31", "yearly": true, "showWithinDays": 30 },
+    { "label": "Thanksgiving", "rule": "4 thu 11", "showWithinDays": 21 },
+    { "label": "Christmas", "date": "2026-12-25", "yearly": true, "showWithinDays": 45 }
+  ],
+  "countdownMax": 3,
+  "agendaMax": 9,
+  "googleCalendar": { "calendars": [], "colors": {} },
+  "calendars": [],
+  "calendarDays": 14,
+  "rotateSec": 12,
+
+  "finnhubKey": "",
+  "ticker": { "speed": 40, "rotateSec": 10 },
+  "headlines": {
+    "title": "Top stories",
+    "rotateSec": 12,
+    "perFeed": 4,
+    "feeds": [
+      { "name": "NPR", "url": "https://feeds.npr.org/1001/rss.xml" },
+      { "name": "PBS NewsHour", "url": "https://www.pbs.org/newshour/feeds/rss/headlines" },
+      { "name": "BBC", "url": "https://feeds.bbci.co.uk/news/world/us_and_canada/rss.xml" }
+    ]
+  },
+
+  "radio": {
+    "autoplay": false,
+    "stations": [
+      { "name": "NPR News Now (latest hour)", "podcast": "https://feeds.npr.org/500005/podcast.xml" },
+      { "name": "Radio Swiss Jazz", "url": "https://stream.srg-ssr.ch/m/rsj/mp3_128" },
+      { "name": "Radio Swiss Classic", "url": "https://stream.srg-ssr.ch/m/rsc_de/mp3_128" },
+      { "name": "SomaFM Indie Pop Rocks", "url": "https://ice1.somafm.com/indiepop-128-mp3" },
+      { "name": "SomaFM Secret Agent", "url": "https://ice1.somafm.com/secretagent-128-mp3" },
+      { "name": "SomaFM Drone Zone", "url": "https://ice1.somafm.com/dronezone-128-mp3" }
+    ]
+  },
+
+  "alerts": { "enabled": true },
+  "weatherIcons": "https://cdn.jsdelivr.net/gh/basmilius/weather-icons@dev/production/fill/svg-static/",
+  "corsProxy": "https://api.allorigins.win/raw?url=",
+  "refresh": { "configMin": 5, "weatherMin": 30, "calendarMin": 15, "gamesMin": 30, "newsMin": 15, "stocksMin": 5, "alertsMin": 10 },
+  "night": { "enabled": true, "style": "clock", "start": "22:00", "end": "06:00", "dim": 0.85, "brightness": 0.03 },
+  "reloadDailyAt": "03:30",
+
+  "_note": "Personal settings (location, news sections, teams, stocks, family dates) are not here. They come from the private Google bridge (Script property DASH_CONFIG) and are merged in on the tablet."
+}
