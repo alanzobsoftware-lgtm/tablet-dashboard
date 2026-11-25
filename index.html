@@ -158,6 +158,9 @@
   @keyframes scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
   #status { font-size: 14px; color: var(--down); }
   #gear { background: none; border: 0; color: var(--text3); font-size: 22px; padding: 6px; }
+  #sleep { background: none; border: 0; color: var(--text3); padding: 6px; display: flex; align-items: center; }   /* sleep now, wake at sunrise */
+  #sleep.on { color: #ff6b5e; }
+  #n-until { font-size: 20px; font-weight: 300; opacity: .3; margin-top: 14px; }
 
   /* Night: StandBy-style dim red clock */
   #night { position: fixed; top: 0; right: 0; bottom: 0; left: 0; background: #000; display: none; flex-direction: column; align-items: center; justify-content: center; color: #ff3b30; z-index: 5; }
@@ -278,11 +281,12 @@
     <div id="ticker"><div id="ticker-track"></div><span class="dots" id="tk-dots"></span></div>
     <div id="headline"></div>
     <span id="status"></span>
+    <button id="sleep" aria-label="Sleep until sunrise"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.6A8.5 8.5 0 0 1 9.4 3.5a8.5 8.5 0 1 0 11.1 11.1z" fill="currentColor"/></svg></button>
     <button id="gear" aria-label="Settings">&#9881;</button>
   </footer>
 </div>
 
-<div id="night"><div id="n-time"></div><div id="n-date"></div></div>
+<div id="night"><div id="n-time"></div><div id="n-date"></div><div id="n-until"></div></div>
 
 <div id="reader" class="modal" hidden>
   <div class="sheet wide"><h3 id="rd-title"></h3><div class="m" id="rd-meta"></div><div class="story" id="rd-text"></div>
@@ -650,9 +654,28 @@ function tick() {
   if (cfg.reloadDailyAt && hhmm(now) === cfg.reloadDailyAt && performance.now() > 120000) location.reload();
 }
 function inWindow(now, start, end) { var n = hhmm(now); return start <= end ? (n >= start && n < end) : (n >= start || n < end); }
+/* Sleep now (moon button): night mode until the next sunrise, even before the usual night hours */
+var sleepUntil = LS.get('dash.sleepUntil', 0);
+function nextSunrise() {
+  var now = Date.now(), wx = LS.get('dash.cache.wx', null), list = (wx && wx.daily && wx.daily.sunrise) || [];
+  for (var i = 0; i < list.length; i++) { var t = new Date(list[i]).getTime(); if (t > now + 60000) return t; }
+  var e = ((cfg.night || {}).end || '06:00').split(':'), d = new Date(); d.setHours(+e[0], +e[1] || 0, 0, 0);   // no forecast: the usual wake time
+  if (d.getTime() <= now) d.setDate(d.getDate() + 1);
+  return d.getTime();
+}
+$('sleep').onclick = function () {
+  sleepUntil = sleepUntil > Date.now() ? 0 : nextSunrise();
+  if (sleepUntil) LS.set('dash.sleepUntil', sleepUntil); else LS.del('dash.sleepUntil');
+  nightPeekUntil = 0;
+  updateNight();
+};
 function updateNight(now) {
   var n = cfg.night || {}, el = $('night');
-  var on = n.enabled && inWindow(now || new Date(), n.start || '22:00', n.end || '06:00') && Date.now() > nightPeekUntil;
+  var manual = sleepUntil > Date.now();
+  if (sleepUntil && !manual) { sleepUntil = 0; LS.del('dash.sleepUntil'); }   // sunrise: wake up
+  var on = (manual || (n.enabled && inWindow(now || new Date(), n.start || '22:00', n.end || '06:00'))) && Date.now() > nightPeekUntil;
+  $('sleep').classList.toggle('on', manual);
+  $('n-until').textContent = manual ? 'Sleeping until ' + fmtTime(new Date(sleepUntil)) : '';
   var dimOnly = n.style === 'dim';
   el.style.background = dimOnly ? 'rgba(0,0,0,' + (n.dim != null ? n.dim : 0.85) + ')' : '#000';
   $('n-time').style.display = $('n-date').style.display = dimOnly ? 'none' : '';
