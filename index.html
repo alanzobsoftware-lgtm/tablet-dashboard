@@ -161,6 +161,10 @@
   #sleep { background: none; border: 0; color: var(--text3); padding: 6px; display: flex; align-items: center; }   /* sleep now, wake at sunrise */
   #sleep.on { color: #ff6b5e; }
   #n-until { font-size: 20px; font-weight: 300; opacity: .3; margin-top: 14px; }
+  #batt { display: flex; align-items: center; gap: 6px; color: var(--text3); font-size: 15px; font-variant-numeric: tabular-nums; flex: 0 0 auto; }   /* battery: quiet when plugged in */
+  #batt.off { color: #ffb340; }   /* unplugged */
+  #batt.low { color: #ff6b5e; }   /* unplugged and at 20% or less */
+  #n-batt { font-size: 22px; font-weight: 300; opacity: .45; margin-top: 14px; }
 
   /* Night: StandBy-style dim red clock */
   #night { position: fixed; top: 0; right: 0; bottom: 0; left: 0; background: #000; display: none; flex-direction: column; align-items: center; justify-content: center; color: #ff3b30; z-index: 5; }
@@ -283,10 +287,11 @@
     <span id="status"></span>
     <button id="sleep" aria-label="Sleep until sunrise"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.6A8.5 8.5 0 0 1 9.4 3.5a8.5 8.5 0 1 0 11.1 11.1z" fill="currentColor"/></svg></button>
     <button id="gear" aria-label="Settings">&#9881;</button>
+    <div id="batt" hidden><svg width="27" height="14" viewBox="0 0 27 14" aria-hidden="true"><rect x="1" y="1" width="22" height="12" rx="3.5" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="24.2" y="4.6" width="1.9" height="4.8" rx=".95" fill="currentColor"/><rect id="batt-fill" x="3" y="3" width="18" height="8" rx="1.8" fill="currentColor"/><path id="batt-bolt" d="M13.4 1.6 8 7.9h3.6l-1.4 4.5 5.5-6.5h-3.6z" fill="currentColor" stroke="#070a12" stroke-width="1.2" stroke-linejoin="round"/></svg><span id="batt-pct"></span></div>
   </footer>
 </div>
 
-<div id="night"><div id="n-time"></div><div id="n-date"></div><div id="n-until"></div></div>
+<div id="night"><div id="n-time"></div><div id="n-date"></div><div id="n-until"></div><div id="n-batt"></div></div>
 
 <div id="reader" class="modal" hidden>
   <div class="sheet wide"><h3 id="rd-title"></h3><div class="m" id="rd-meta"></div><div class="story" id="rd-text"></div>
@@ -686,6 +691,24 @@ function updateNight(now) {
   if (bright !== lastBright && window.TabletApp && window.TabletApp.setBrightness) { lastBright = bright; try { window.TabletApp.setBrightness(bright); } catch (e) {} }
 }
 $('night').addEventListener('click', function () { nightPeekUntil = Date.now() + 2 * 60000; updateNight(); setTimeout(updateNight, 2 * 60000 + 500); });
+
+/* ---------- Battery: the tablet should always be plugged in, so say so loudly when it isn't ---------- */
+function renderBattery(level, charging) {
+  var pct = Math.round(level * 100), el = $('batt');
+  el.hidden = false;
+  el.classList.toggle('off', !charging);
+  el.classList.toggle('low', !charging && pct <= 20);
+  $('batt-fill').setAttribute('width', Math.max(1, 18 * level).toFixed(1));
+  $('batt-bolt').style.display = charging ? '' : 'none';
+  $('batt-pct').textContent = charging ? pct + '%' : 'Unplugged \u00b7 ' + pct + '%';
+  $('n-batt').textContent = charging ? '' : 'Unplugged \u00b7 ' + pct + '%';
+}
+if (navigator.getBattery) navigator.getBattery().then(function (b) {
+  function upd() { renderBattery(b.level, b.charging); }
+  b.addEventListener('levelchange', upd);
+  b.addEventListener('chargingchange', upd);
+  upd();
+}).catch(function () {});
 
 /* ---------- Weather (Open-Meteo) with Meteocons icons (MIT license, by Bas Milius) ---------- */
 function wxIcon(code, isDay) {
