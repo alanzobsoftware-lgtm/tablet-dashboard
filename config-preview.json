@@ -52,7 +52,7 @@
   "weatherIcons": "https://cdn.jsdelivr.net/gh/basmilius/weather-icons@dev/production/fill/svg-static/",
   "corsProxy": "https://api.allorigins.win/raw?url=",
   "refresh": { "configMin": 5, "weatherMin": 30, "calendarMin": 15, "gamesMin": 30, "newsMin": 15, "stocksMin": 5, "alertsMin": 10 },
-  "night": { "enabled": true, "style": "clock", "start": "22:00", "end": "06:00", "dim": 0.85, "brightness": 0.03 },
+  "night": { "enabled": true, "style": "clock", "start": "22:00", "end": "06:00", "dim": 0.85, "brightness": 0.01 },
   "reloadDailyAt": "03:30",
 
   "_note": "Personal settings (location, news sections, teams, stocks, family dates) are not here. They come from the private Google bridge (Script property DASH_CONFIG) and are merged in on the tablet."
